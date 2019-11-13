@@ -1,0 +1,40 @@
+This is Ohce syntax sample file.
+
+Ohce takes a sad file(we call it sad) and a template file(we call it ohce), it will fill the ohce with data defined in that sad.
+
+Ohce is just a textual file that is or not embedded with dynamic contents(we call it dynamic, so other is called static).
+
+Dynamic is wrapped by special symbol which is one or two chars, we call it wrapper. For example we can use `{}` as our wrapper: `{dynamic-content}`. we call `{` wrapper-start, `}` wrapper-end, they can be different or same.
+
+This file we use dollar symbol(well, we can not escape this char so we have to write it's name down) to embed dynamic.
+
+Is `name` defined? $if name$ Yes it is $name$ $else$ No it's not $endif$
+
+Ohce support:
+	if: test a key defined or not.
+	not: like `!`
+	for: iterater array.
+
+A sad:
+
+	{
+		author {
+			first-name "Qijian"
+			last-name "Zhang"
+			name {
+				first "Qijan"
+				last "Zhang"
+			}
+			emails [
+				"qijian.zhang@qq.com"
+				"qijian.zhang@outlook.com"
+			]
+		}
+	}
+
+A ohce:
+
+	Ohce's author is $author.name.first$ $author.name.last$.
+	If you want to contact him, you can send an email:
+		$for email in emails$$email$ $endfor$
+

@@ -1,0 +1,6 @@
+hello, $name$!
+/* if names */
+Your english name is '$names.english$' and your chinese name is '$names.chinese$'!
+/* else */
+Looks like you only have one name.
+/* endif */
