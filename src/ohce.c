@@ -118,13 +118,8 @@ static bool ohce_eval_expr(Str expr, Str dst, SadDict sd)
 	struct Sad s = ohce_expr_to_sad(expr, sd);
 	if (s.type == SAD_STRING) {
 		Str_append(dst, s.str);
-		return true;
-	} else {
-		fprintf(stderr, "Invalid expression: ");
-		fwrite(Str_data(expr), 1, Str_getLength(expr), stderr);
-		fprintf(stderr, "\n");
-		return false;
 	}
+	return true;
 }
 
 static bool ohce_eat_if(struct OP *OP)
@@ -218,7 +213,8 @@ inBody:
 	case OHCE_ELSE:
 		if (met_else) return false;
 		met_else = true;
-		OP->goon = OP->goon && !if_true;
+		if_true = !if_true;
+		OP->goon = OP->goon && if_true;
 		goto inBody;
 	case OHCE_ENDIF:
 		OP->start += 1;
