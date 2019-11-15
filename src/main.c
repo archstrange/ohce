@@ -24,11 +24,6 @@ static const char *OHCE_USAGE = "ohce - A template engine\n"
 
 int main(int argc, char *argv[])
 {
-	if (argc < 2) {
-		printf("%s", OHCE_USAGE);
-		return 0;
-	}
-
 	const char *files[3];
 	int nfiles = 0;
 	FILE *sadfile = stdin;
@@ -62,6 +57,10 @@ int main(int argc, char *argv[])
 			ret = 1;
 			goto onFileFail;
 		}
+		break;
+	default:
+		printf("%s", OHCE_USAGE);
+		return 1;
 	}
 
 	struct Sad sad = Sad_fromFILE(sadfile);
