@@ -33,6 +33,7 @@ int ohce(Str src, Str dst, SadDict sd, const struct OhceDelim *OD)
 		return 1;
 
 	int ret = 0;
+	size_t start;
 	Str_clear(dst);
 	struct OhceLexer OL = OL_create(src, OD);
 	struct OP OP = OP_new();
@@ -53,7 +54,7 @@ int ohce(Str src, Str dst, SadDict sd, const struct OhceDelim *OD)
 			break;
 		case OHCE_IF:
 			OP.goon = true;
-			OP.start = OP_length(&OP);
+			OP.start = start = OP_length(&OP);
 			if (!ohce_eat_if(&OP)) {
 				ret = 1;
 				goto onError;
@@ -62,7 +63,7 @@ int ohce(Str src, Str dst, SadDict sd, const struct OhceDelim *OD)
 				ret = 1;
 				goto onError;
 			}
-			OP_dropTail(&OP, OP_length(&OP) - OP.start);
+			OP_dropTail(&OP, OP_length(&OP) - start);
 			break;
 		}
 	}
@@ -217,7 +218,6 @@ inBody:
 		OP->goon = OP->goon && if_true;
 		goto inBody;
 	case OHCE_ENDIF:
-		OP->start += 1;
 		break;
 	case OHCE_FOR:
 		// TODO
