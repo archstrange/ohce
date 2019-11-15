@@ -1,0 +1,12 @@
+/* if T_copy */
+/* if T_clone */
+	for (size_t i = 0; i < self->length; i++) {
+		if (buffer[i] == NULL)
+			buffer[i] = $T_clone$(self->data[i]);
+		else
+			$T_copy$(buffer[i], self->data[i]);
+	}
+/* endif */
+/* else */
+	memcpy(buffer, self->data, sizeof($T$) * self->length);
+/* endif */

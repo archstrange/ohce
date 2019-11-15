@@ -1,0 +1,5 @@
+{
+	T 'int'
+	T_clone 'clone'
+	T_copy 'copy'
+}

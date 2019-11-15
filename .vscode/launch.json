@@ -41,6 +41,25 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "name": "bug-_else_",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/ohce",
+            "args": ["samples/bug-_else_.ohce", "samples/bug-_else_.sad"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
         }
     ]
 }
