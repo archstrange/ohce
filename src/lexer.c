@@ -154,19 +154,19 @@ static void OL_idID(struct OhceToken *t)
 	case 2:
 		if (strncmp(id, "if", 2) == 0)
 			t->type = OHCE_IF;
-		else if (strncmp(id, "in", 2))
+		else if (strncmp(id, "in", 2) == 0)
 			t->type = OHCE_IN;
 		break;
 	case 3:
 		if (strncmp(id, "not", 3) == 0)
 			t->type = OHCE_NOT;
-		else if (strncmp(id, "for", 3))
+		else if (strncmp(id, "for", 3) == 0)
 			t->type = OHCE_FOR;
 		break;
 	case 4:
 		if (strncmp(id, "else", 4) == 0)
 			t->type = OHCE_ELSE;
-		else if (strncmp(id, "elif", 4))
+		else if (strncmp(id, "elif", 4) == 0)
 			t->type = OHCE_ELIF;
 		break;
 	case 5:
