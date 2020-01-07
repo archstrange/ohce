@@ -1,7 +1,7 @@
 #ifndef OHCE_LEXER_H
 #define OHCE_LEXER_H
 #include <stdbool.h>
-#include <cutils/PS.h>
+#include <cutils/LS.h>
 #include <cutils/Vector/Str.h>
 
 /// ohce delimiters
@@ -54,7 +54,7 @@ struct OhceToken {
 };
 
 struct OhceLexer {
-	PS ps;
+	LS ps;
 	struct OhceToken curToken;
 	const struct OhceDelim *OD;
 	int in;

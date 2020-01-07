@@ -1,10 +1,10 @@
 #include "ohce.h"
 #include <cutils/Vector/I32Vector.h>
-#include <cutils/Vector/PtrVector.h>
+#include <cutils/Vector/StrVector.h>
 
 struct OP {
 	I32Vector types;
-	PtrVector exprs;
+	StrVector exprs;
 	size_t start;
 	bool goon;
 	struct OhceLexer *OL;
@@ -180,7 +180,7 @@ static bool ohce_eval_if(struct OP *OP)
 		OP->start += 1;
 	}
 	if (!OP->goon) goto inBody;
-	e = PtrVector_get(OP->exprs, OP->start);
+	e = StrVector_get(OP->exprs, OP->start);
 	sad = ohce_expr_to_sad(e, OP->sd);
 	if_true = NOT_BOOL(has_not, sad.type == SAD_UNKNOWN_VALUE_TYPE);
 
@@ -189,12 +189,12 @@ inBody:
 	switch (I32Vector_get(OP->types, OP->start)) {
 	case OHCE_TEXT:
 		if (OP->goon && if_true) {
-			Str_append(OP->dst, PtrVector_get(OP->exprs, OP->start));
+			Str_append(OP->dst, StrVector_get(OP->exprs, OP->start));
 		}
 		goto inBody;
 	case OHCE_EXPR:
 		if (OP->goon && if_true) {
-			sad = ohce_expr_to_sad(PtrVector_get(OP->exprs, OP->start), OP->sd);
+			sad = ohce_expr_to_sad(StrVector_get(OP->exprs, OP->start), OP->sd);
 			if (sad.type == SAD_STRING) {
 				Str_append(OP->dst, sad.str);
 			}
@@ -232,18 +232,14 @@ static inline struct OP OP_new()
 {
 	return (struct OP){
 		.types = I32Vector_newWithCapacity(0),
-		.exprs = PtrVector_newWithCapacity(0),
+		.exprs = StrVector_newWithCapacity(0),
 	};
 }
 
 static void OP_free(struct OP *self)
 {
 	I32Vector_free(self->types);
-	size_t len = PtrVector_getLength(self->exprs);
-	for (size_t i = 0; i < len; i++) {
-		Str_free(PtrVector_get(self->exprs, i));
-	}
-	PtrVector_free(self->exprs);
+	StrVector_free(self->exprs);
 }
 
 static inline size_t OP_length(struct OP *self)
@@ -255,13 +251,13 @@ static inline void OP_push(struct OP *self, int type, Str expr)
 {
 	I32Vector_push(self->types, type);
 	Str e = expr == NULL ? NULL : Str_clone(expr);
-	PtrVector_push(self->exprs, e);
+	StrVector_push(self->exprs, e);
 }
 
 static inline void OP_pop(struct OP *self, int *type, Str *expr)
 {
 	int t = I32Vector_pop(self->types);
-	Str e = PtrVector_pop(self->exprs);
+	Str e = StrVector_pop(self->exprs);
 	if (type != NULL) *type = t;
 	if (expr != NULL) *expr = e;
 }
