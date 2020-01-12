@@ -1,0 +1,10 @@
+if
+not
+and
+or
+else
+elif
+endif
+for
+in
+endfor

@@ -1,200 +1,76 @@
 #include "lexer.h"
-#include <ctype.h>
-#include <string.h>
 
-static int OL_nextTokenInSmt(struct OhceLexer *self);
-static int OL_nextTokenInText(struct OhceLexer *self);
-static int OL_eatExpr(struct OhceLexer *self);
-// return ID length
-static size_t OL_nextID(struct OhceLexer *self);
-static void OL_idID(struct OhceToken *t);
-// check if next chars in ps is @chars
-static inline bool OL_checkChars(struct OhceLexer *self,
-				 const uint8_t *chars,
-				 uint8_t len);
-static inline void OL_LSForward(struct OhceLexer *self, size_t step);
-static inline void OL_LSSkipSpaces(struct OhceLexer *self);
-static inline bool is_id_char(int c);
+static bool inline validate_delim(const char *delim);
+static bool validate_config(const struct LexerConfig *cfg);
 
-struct OhceLexer OL_create(Str source, const struct OhceDelim *OD)
+struct __ohce_Lexer {
+	struct LexerConfig cfg;
+	uint8_t smt_begin_len,
+		smt_end_len,
+		expr_begin_len,
+		expr_end_len;
+
+	Str src;
+	size_t index;
+	Token token, next_token;
+	bool peeked;
+
+	size_t smt_begin_index,
+	       smt_end_index,
+	       expr_begin_index,
+	       expr_end_index;
+};
+
+static int Lexer_getNextToken(Lexer self, Token *token);
+
+Lexer Lexer_new(Str src, const struct LexerConfig *cfg)
 {
-	struct OhceLexer self = {
-		.ps = LS_newStrSource(source, false),
-		.curToken = {
-			.type = 0,
-			.str = Str_newWithCapacity(0)
-		},
-		.in = OHCE_TEXT,
-		.OD = OD,
-	};
+	Lexer self = calloc(1, sizeof(*self));
+	self->cfg = *cfg;
+	self->smt_begin_len = CStr_len(cfg->statement.begin);
+	self->smt_end_len = CStr_len(cfg->statement.end);
+	self->expr_begin_len = CStr_len(cfg->expr.begin);
+	self->expr_end_len = CStr_len(cfg->expr.end);
+	self->src = Str_clone(src);
+	Str_asCStr(self->src);
+	Token_init(&self->token);
+	Token_init(&self->next_token);
+
 	return self;
 }
 
-void OL_destroy(struct OhceLexer *self)
+void Lexer_free(Lexer self)
 {
-	if (self != NULL) {
-		LS_free(self->ps);
-		Str_free(self->curToken.str);
-	}
+	if (self == NULL) return;
+	Str_free(self->src);
+	Token_free(&self->token);
+	Token_free(&self->next_token);
 }
 
-int OL_nextToken(struct OhceLexer *self)
+static int Lexer_getNextToken(Lexer self, Token *token)
 {
-	int ch;
-	if ((ch = LS_char(self->ps)) >= 0) {
-		switch (self->in) {
-		case OHCE_TEXT:
-			return OL_nextTokenInText(self);
-		case OHCE_EXPR:
-			return OL_eatExpr(self);
-		case OHCE_SMT:
-			return OL_nextTokenInSmt(self);
-		default:
-			return OHCE_BAD_FORMAT;
-		}
-	}
-	return OHCE_EOS;
+
 }
 
-static int OL_nextTokenInSmt(struct OhceLexer *self)
+static bool inline validate_delim(const char *delim)
 {
-	if (OL_nextID(self)) {
-		OL_idID(&self->curToken);
-		return self->curToken.type;
+	for (int i = 0; i < 5; i++) {
+		if (delim[i] == 0)
+			return i != 0;
+		if (delim[i] >= 'a' && delim[i] <= 'z' ||
+		    delim[i] >= 'A' && delim[i] <= 'Z' ||
+		    delim[i] >= '0' && delim[i] <= '9' ||
+		    delim[i] == '_' || delim[i] == '-')
+			return false;
 	}
-	if (OL_checkChars(self, self->OD->smt.e, self->OD->smt.elen)) {
-		OL_LSForward(self, self->OD->smt.elen);
-		if (OL_checkChars(self, "\n", 1)) OL_LSForward(self, 1);
-		self->in = OHCE_TEXT;
-		return OL_nextToken(self);
-	}
-	return OHCE_BAD_FORMAT;
-}
-
-static int OL_nextTokenInText(struct OhceLexer *self)
-{
-	Str_clear(self->curToken.text);
-	self->curToken.type = OHCE_TEXT;
-
-	int ch;
-	while ((ch = LS_char(self->ps)) >= 0) {
-		if (OL_checkChars(self, self->OD->smt.b, self->OD->smt.blen)) {
-			OL_LSForward(self, self->OD->smt.blen);
-			self->in = OHCE_SMT;
-			goto getText;
-		}
-		if (OL_checkChars(self, self->OD->expr.b, self->OD->expr.blen)) {
-			OL_LSForward(self, self->OD->expr.blen);
-			self->in = OHCE_EXPR;
-			goto getText;
-		}
-		Str_push(self->curToken.text, ch);
-		LS_next(self->ps);
-	}
-
-getText:
-	if (Str_getLength(self->curToken.text) == 0) {
-		if (ch < 0)
-			return OHCE_EOS;
-		else
-			return OL_nextToken(self);
-	}
-	return self->curToken.type;
-}
-
-static int OL_eatExpr(struct OhceLexer *self)
-{
-	size_t len = OL_nextID(self);
-	self->curToken.type = OHCE_EXPR;
-	OL_LSSkipSpaces(self);
-	if (!OL_checkChars(self, self->OD->expr.e, self->OD->expr.elen))
-		self->curToken.type = OHCE_BAD_FORMAT;
-	OL_LSForward(self, self->OD->expr.elen);
-	self->in = OHCE_TEXT;
-
-	if (len == 0) {
-		return OL_nextToken(self);
-	}
-	return self->curToken.type;
-}
-
-static inline bool is_id_char(int c)
-{
-	if (c >= 'a' && c <= 'z' ||
-	    c >= 'A' && c <= 'Z' ||
-	    c == '_' || c == '.')
-		return true;
 	return false;
 }
 
-static inline void OL_LSSkipSpaces(struct OhceLexer *self)
+static bool validate_config(const struct LexerConfig *cfg)
 {
-	while (isspace(LS_char(self->ps))) {
-		LS_next(self->ps);
-	}
-}
-
-static size_t OL_nextID(struct OhceLexer *self)
-{
-	int c;
-	Str_clear(self->curToken.text);
-	OL_LSSkipSpaces(self);
-	while (is_id_char(c = LS_char(self->ps))) {
-		Str_push(self->curToken.text, c);
-		LS_next(self->ps);
-	}
-	return Str_getLength(self->curToken.text);
-}
-
-static void OL_idID(struct OhceToken *t)
-{
-	const uint8_t *id = Str_data(t->str);
-	t->type = OHCE_EXPR;
-	switch (Str_getLength(t->str)) {
-	case 2:
-		if (strncmp(id, "if", 2) == 0)
-			t->type = OHCE_IF;
-		else if (strncmp(id, "in", 2) == 0)
-			t->type = OHCE_IN;
-		break;
-	case 3:
-		if (strncmp(id, "not", 3) == 0)
-			t->type = OHCE_NOT;
-		else if (strncmp(id, "for", 3) == 0)
-			t->type = OHCE_FOR;
-		break;
-	case 4:
-		if (strncmp(id, "else", 4) == 0)
-			t->type = OHCE_ELSE;
-		else if (strncmp(id, "elif", 4) == 0)
-			t->type = OHCE_ELIF;
-		break;
-	case 5:
-		if (strncmp(id, "endif", 5) == 0)
-			t->type = OHCE_ENDIF;
-		break;
-	case 6:
-		if (strncmp(id, "endfor", 6) == 0)
-			t->type = OHCE_ENDFOR;
-		break;
-	}
-}
-
-static inline bool OL_checkChars(struct OhceLexer *self,
-				 const uint8_t *chars,
-				 uint8_t len)
-{
-	for (uint8_t i = 0; i < len; i++) {
-		if (chars[i] != LS_peek(self->ps, i))
-			return false;
-	}
-	return true;
-}
-
-static inline void OL_LSForward(struct OhceLexer *self, size_t step)
-{
-	for (size_t i = 0; i < step; i++) {
-		LS_next(self->ps);
-	}
+	if (!validate_delim(cfg->statement.begin)) return false;
+	if (!validate_delim(cfg->statement.end)) return false;
+	if (!validate_delim(cfg->expr.begin)) return false;
+	if (!validate_delim(cfg->expr.end)) return false;
 }
 

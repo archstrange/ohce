@@ -1,70 +1,63 @@
 #ifndef OHCE_LEXER_H
 #define OHCE_LEXER_H
-#include <stdbool.h>
-#include <cutils/LS.h>
-#include <cutils/Vector/Str.h>
+#include "idkeyword.h"
+#include <cutils/Str.h>
 
-/// ohce delimiters
-struct OhceDelim {
+typedef struct __ohce_Lexer *Lexer;
 
-	/// statements delimiters
+struct LexerConfig {
 	struct {
-		/// begin delimiters
-		uint8_t b[8], blen;
-		/// end delimiters
-		uint8_t e[8], elen;
-	} smt;
-
-	/// expressions delimiters
+		char begin[5];
+		char end[5];
+	} statement;
 	struct {
-		/// begin delimiters
-		uint8_t b[8], blen;
-		/// end delimiters
-		uint8_t e[8], elen;
+		char begin[5];
+		char end[5];
 	} expr;
 };
 
-// ohce token type
 enum {
-	OHCE_BAD_FORMAT = -2,
-	OHCE_EOS = -1, // end of source
-	OHCE_UNKNOWN_TOKEN = 0,
-
-	OHCE_IF,
-	OHCE_NOT,
-	OHCE_ELSE,
-	OHCE_ELIF,
-	OHCE_ENDIF,
-	OHCE_FOR,
-	OHCE_IN,
-	OHCE_ENDFOR,
-
-	OHCE_TEXT,
-	OHCE_EXPR,
-	OHCE_SMT,
+	TT_EOS = 0,
+	TT_TEXT = 1,
+	TT_DOT,
 };
 
-struct OhceToken {
+typedef struct {
 	int type;
-	union {
-		Str text;
-		Str expr;
-		Str str;
-	};
-};
+	Str str;
+} Token;
 
-struct OhceLexer {
-	LS ps;
-	struct OhceToken curToken;
-	const struct OhceDelim *OD;
-	int in;
-};
+Lexer Lexer_new(Str src, const struct LexerConfig *cfg);
 
-struct OhceLexer OL_create(Str source, const struct OhceDelim *OD);
+void Lexer_free(Lexer self);
 
-void OL_destroy(struct OhceLexer *self);
+int Lexer_next(Lexer self);
 
-int OL_nextToken(struct OhceLexer *self);
+int Lexer_peekNext(Lexer self);
+
+Token *Lexer_token(Lexer self);
+
+Token *Lexer_peekNextToken(Lexer self);
+
+static inline void Token_init(Token *self)
+{
+	static Token init = { 0 };
+	*self = init;
+	self->str = Str_new();
+}
+
+static inline void Token_free(Token *self)
+{
+	if (self != NULL) if (self->str != NULL) Str_free(self->str);
+}
+
+static inline void Token_copy(Token *self, const Token *src)
+{
+	Str str = self->str;
+	*self = *src;
+	Str_copy(str, src->str);
+	self->str = str;
+}
 
 #endif
 
