@@ -1,0 +1,6 @@
+{
+	project 'ohce'
+	author 'Arch Strange'
+	email 'arch.strange@foxmail.com'
+	brief 'A simple template engine'
+}
