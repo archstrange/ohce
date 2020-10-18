@@ -24,7 +24,7 @@ static void ohce_on_delime1(struct ohce_io *io, struct ohce_primitive *p)
 
 	while (io->get(io, &c))
 	{
-		if (c == p->delim1[1])
+		if (c != 0 && c == p->delim1[1])
 			break;
 		Str_push(p->content, c);
 	}
@@ -41,6 +41,9 @@ again:
 		return;
 
 	Str_push(p->content, c);
+	if (c == 0)
+		goto again;
+
 	if (c == p->delim2[1][0])
 	{
 		if (!io->get(io, &c))
