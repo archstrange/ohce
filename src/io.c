@@ -111,8 +111,7 @@ struct ohce_io *ohce_io_from_str(Str in, Str out)
 
 void ohce_io_free_str(struct ohce_io *strio)
 {
-	if (strio)
-	{
+	if (strio) {
 		free(strio);
 	}
 }

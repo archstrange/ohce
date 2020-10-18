@@ -22,8 +22,7 @@ static void ohce_on_delime1(struct ohce_io *io, struct ohce_primitive *p)
 	p->type = OHCE_PRIMITIVE_DYNAMIC;
 	p->next = 0;
 
-	while (io->get(io, &c))
-	{
+	while (io->get(io, &c)) {
 		if (c != 0 && c == p->delim1[1])
 			break;
 		Str_push(p->content, c);
@@ -44,12 +43,10 @@ again:
 	if (c == 0)
 		goto again;
 
-	if (c == p->delim2[1][0])
-	{
+	if (c == p->delim2[1][0]) {
 		if (!io->get(io, &c))
 			return;
-		if (c == p->delim2[1][1])
-		{
+		if (c == p->delim2[1][1]) {
 			Str_pop(p->content);
 			return;
 		}
@@ -68,8 +65,7 @@ void ohce_get_primitive(struct ohce_io *io, struct ohce_primitive *p)
 	p->type = 0;
 	Str_clear(p->content);
 
-	switch (p->next)
-	{
+	switch (p->next) {
 	case 1:
 		ohce_on_delime1(io, p);
 		return;
@@ -90,19 +86,16 @@ again:
 	if (c == 0)
 		goto again;
 
-	if (c == p->delim1[0])
-	{
+	if (c == p->delim1[0]) {
 		Str_pop(p->content);
 		p->next = 1;
 		return;
 	}
 
-	if (c == p->delim2[0][0])
-	{
+	if (c == p->delim2[0][0]) {
 		if (!io->get(io, &c))
 			return;
-		if (c == p->delim2[0][1])
-		{
+		if (c == p->delim2[0][1]) {
 			Str_pop(p->content);
 			p->next = 2;
 			return;

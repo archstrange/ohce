@@ -34,8 +34,8 @@ struct ohce_primitive {
 	/// primitive content
 	Str content;
 
-	const char delim1[2]; // start, end: 1 char
-	const char delim2[2][2]; // start, end: 2 chars
+	char delim1[2]; // start, end: 1 char
+	char delim2[2][2]; // start, end: 2 chars
 };
 
 /// Get one primitive
