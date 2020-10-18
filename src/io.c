@@ -68,3 +68,52 @@ void ohce_io_free_file(struct ohce_io *fileio)
 	free(fileio);
 }
 
+struct ohce_str_io {
+	struct ohce_io api;
+	Str in, out;
+	size_t next;
+	// TODO record current char position
+};
+
+static bool strio_get(void *io, uint8_t *c)
+{
+	struct ohce_str_io *self = io;
+	if (self->next >= Str_getLength(self->in))
+		return false;
+	*c = Str_get(self->in, self->next);
+	self->next += 1;
+	return true;
+}
+
+static bool strio_put(void *io, uint8_t c)
+{
+	struct ohce_str_io *self = io;
+	Str_push(self->out, c);
+	return true;
+}
+
+static void strio_error(void *io, int err)
+{
+	struct ohce_str_io *self = io;
+	// TODO
+}
+
+struct ohce_io *ohce_io_from_str(Str in, Str out)
+{
+	if (!in || !out)
+		return NULL;
+	struct ohce_str_io *self = malloc(sizeof(*self));
+	self->in = in;
+	self->out = out;
+	self->next = 0;
+	return &self->api;
+}
+
+void ohce_io_free_str(struct ohce_io *strio)
+{
+	if (strio)
+	{
+		free(strio);
+	}
+}
+
