@@ -73,7 +73,6 @@ again:
 		break;
 	}
 
-done:
 	Str_free(p.content);
 	return ret;
 }
@@ -235,7 +234,7 @@ static bool eval_if(SELF self, bool alive)
 
 static bool eval_for(SELF self, bool alive)
 {
-
+	return false;
 }
 
 static bool ohce_eval_dynamics(SadDict sad, struct ohce_io *io, struct ohce_primitive *p)
