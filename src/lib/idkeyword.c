@@ -1,7 +1,7 @@
 // do not edit this generated file!
 #include "idkeyword.h"
 
-#define IS_A_(c) (c >= 'a' && c <= 'Z' || c >= 'A' && c <= 'Z' || c == '_' || c == '-')
+#define IS_A_(c) (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_' || c == '-')
 #define IS_AN_(c) (IS_A_(c) || c >= '0' && c <= '9')
 #define ID_KW(c) if (IS_AN_(c)) return -1; else return TT_ID
 #define KW(c, k) if (IS_AN_(c)) return -1; else return k
