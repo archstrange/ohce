@@ -5,51 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "temp",
+            "name": "hello.ohce",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/ohce",
-            "args": ["${workspaceFolder}/../cutils/src/Dict/Dict.h.ohce",
-                "${workspaceFolder}/../cutils/src/Dict/StrStrDict.sad"
-            ],
-            "stopAtEntry": true,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "为 gdb 启用整齐打印",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "argc=2",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/src/ohce",
-            "args": ["samples/hello.ohce"],
-            "stopAtEntry": false,
-            "cwd": "${workspaceFolder}",
-            "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                }
-            ]
-        },
-        {
-            "name": "argc=3",
-            "type": "cppdbg",
-            "request": "launch",
-            "program": "${workspaceFolder}/build/src/ohce",
-            "args": ["samples/hello.ohce", "samples/hello.sad"],
+            "program": "${workspaceFolder}/build/src/bin/ohce",
+            "args": ["samples/hello.ohce", "-", "samples/hello.sad"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -67,8 +27,27 @@
             "name": "bug-_else_",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/src/ohce",
-            "args": ["samples/bug-_else_.ohce", "samples/bug-_else_.sad"],
+            "program": "${workspaceFolder}/build/src/bin/ohce",
+            "args": ["samples/bug-_else_.ohce", "-", "samples/bug-_else_.sad"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "if-ln",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/bin/ohce",
+            "args": ["samples/if.ohce", "-", "samples/if-ln.sad"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

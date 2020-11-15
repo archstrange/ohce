@@ -1,0 +1,25 @@
+/* if not name */
+No 'name' key found in sad file!
+/* else */
+Found 'name' key: "$name$"
+Hi, You are $name$!
+/* endif */
+
+/* if first-name and last-name */
+And I know your first name is $first-name$, $last-name$ is your last name! Am I right?
+/* elif first-name */
+And I know your first name is $first-name$, what's your last name then?
+/* elif last-name */
+And I know your last name is $last-name$, what's your first name then?
+/* else */
+What are your first name and last name?
+/* endif */
+
+/* if first-name or last-name and name */
+/* if first-name */
+Hi $first-name$!
+/* else */
+A: Hi, Mr. $last-name$!
+B: Please, call me $name$.
+/* endif */
+/* endif */
