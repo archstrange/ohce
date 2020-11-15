@@ -119,10 +119,10 @@ static void next_token(SELF self)
 again:
 	if (self->index < n) {
 		c = Str_get(self->p->content, self->index);
-		Str_push(self->token, c);
 	} else {
 		c = 0;
 	}
+	Str_push(self->token, c);
 
 	s = st_idkeyword(s, c);
 	switch (s) {
@@ -133,8 +133,10 @@ again:
 	case TT_KW_else: case TT_KW_elif:
 	case TT_KW_endif: case TT_KW_endfor:
 		self->tt = s;
+		Str_pop(self->token);
 		return;
 	default:
+		self->index += 1;
 		goto again;
 	}
 }
@@ -170,13 +172,13 @@ static bool eval_bool(SELF self, bool *res)
 	case TT_END:
 		break;
 	case TT_KW_and:
-		if (res)
+		if (*res)
 			ret = eval_bool(self, res);
 		else
 			*res = false;
 		break;
 	case TT_KW_or:
-		if (res)
+		if (*res)
 			*res = true;
 		else
 			ret = eval_bool(self, res);
@@ -190,24 +192,31 @@ static bool eval_bool(SELF self, bool *res)
 
 static bool eval_if_block(SELF self, bool alive)
 {
+	bool ret = true;
 again:
 	ohce_get_primitive(self->io, self->p);
 	if (self->p->type == OHCE_PRIMITIVE_STATIC) {
-		if (alive) put_str(self->io, self->p->content);
+		if (alive) {
+			ret = put_str(self->io, self->p->content);
+		}
 	} else if (self->p->type == OHCE_PRIMITIVE_DYNAMIC) {
 		self->index = 0;
 		next_token(self);
 		switch (self->tt) {
 		case TT_KW_if:
-			eval_if(self, alive);
+			ret = eval_if(self, alive);
 			break;
 		case TT_KW_for:
-			eval_for(self, alive);
+			ret = eval_for(self, alive);
+			break;
+		case TT_ID:
+			if (alive) ret = eval_id(self);
 			break;
 		default:
 			return true;
 		}
 	}
+	if (!ret) return false;
 	goto again;
 }
 
