@@ -9,7 +9,34 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/src/bin/ohce",
-            "args": ["samples/hello.ohce", "-", "samples/hello.sad"],
+            "args": [
+                "samples/hello.ohce",
+                "-",
+                "samples/hello.sad"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "empty.sad",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/src/bin/ohce",
+            "args": [
+                "samples/hello.ohce",
+                "-",
+                "samples/empty.sad"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -28,7 +55,11 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/src/bin/ohce",
-            "args": ["samples/bug-_else_.ohce", "-", "samples/bug-_else_.sad"],
+            "args": [
+                "samples/bug-_else_.ohce",
+                "-",
+                "samples/bug-_else_.sad"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
@@ -47,7 +78,11 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/src/bin/ohce",
-            "args": ["samples/if.ohce", "-", "samples/if-ln.sad"],
+            "args": [
+                "samples/if.ohce",
+                "-",
+                "samples/if-ln.sad"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],

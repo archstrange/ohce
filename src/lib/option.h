@@ -14,19 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-#ifndef __OHCE_SRC_EVAL_H
-#define __OHCE_SRC_EVAL_H
-#include "option.h"
-#include "io.h"
-#include <sad/sad.h>
+#ifndef __OHCE_SRC_OPTION_H
+#define __OHCE_SRC_OPTION_H
+#include <stdbool.h>
 
-/// Pass delim1 or delim2 with NULL if you don't use it(them)
-int ohce_eval(
-	      const struct ohce_option *options,
-	      SadDict sad,
-	      struct ohce_io *io,
-	      const char delim1[2],
-	      const char delim2[2][2]
-);
+struct ohce_option {
+	/// ignore false keys
+	bool ignore_false_key;
+};
+
+static const struct ohce_option OHCE_OPTION_DEFAULT = {
+	.ignore_false_key = false,
+};
 
 #endif

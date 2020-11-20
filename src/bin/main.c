@@ -43,6 +43,13 @@ struct xo_entry XOS[] = {
 		.l = "sad",
 		.help = "-s | --sad SAD_FILE | -",
 	},
+#define OPT_IGNORE_FALSE_KEY (XOS[3])
+	{
+		.type = XO_ENTRY_SHORT | XO_ENTRY_LONG,
+		.s = 'I',
+		.l = "ignore-false-key",
+		.help = "-I | --ignore-false-key",
+	},
 };
 
 static const char USAGE[] =
@@ -63,6 +70,8 @@ static FILE *fp_sad = NULL;
 
 static const char delim1[2] = "$$";
 static const char delim2[2][2] = { "/*", "*/" };
+
+static struct ohce_option lib_options = OHCE_OPTION_DEFAULT;
 
 static inline void open_file_arg(const char *arg, FILE **fpp, FILE *fp_def)
 {
@@ -122,6 +131,10 @@ int main(int argc, const char *argv[])
 	open_file_arg(Str_cstr(arg_out), &fp_out, stdout);
 	open_file_arg(Str_cstr(arg_sad), &fp_sad, stdin);
 
+	if (OPT_IGNORE_FALSE_KEY.type & XO_ENTRY_MET) {
+		lib_options.ignore_false_key = true;
+	}
+
 	if (!fp_ohce) {
 		fprintf(stderr, "Error: failed to open ohce file\n");
 		ret = 1;
@@ -157,7 +170,7 @@ int main(int argc, const char *argv[])
 		goto done;
 	}
 
-	if (ohce_eval(sad.dict, io, delim1, delim2)) {
+	if (ohce_eval(&lib_options, sad.dict, io, delim1, delim2)) {
 		fprintf(stderr, "Error: ohcing failed\n");
 		ret = 1;
 		goto done;

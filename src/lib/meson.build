@@ -8,6 +8,7 @@ lib_src = [
 lib_headers = [
   'eval.h',
   'io.h',
+  'option.h',
 ]
 
 ohce_lib = static_library(

@@ -28,6 +28,7 @@ enum ExtraTokenType {
 };
 
 typedef struct SELF {
+	const struct ohce_option *options;
 	SadDict sad;
 	struct ohce_io *io;
 	struct ohce_primitive *p;
@@ -45,9 +46,20 @@ static bool eval_id(SELF self);
 static bool eval_if(SELF self, bool alive);
 static bool eval_for(SELF self, bool alive);
 
-static bool ohce_eval_dynamics(SadDict sad, struct ohce_io *io, struct ohce_primitive *p);
+static bool ohce_eval_dynamics(
+			       const struct ohce_option *options,
+			       SadDict sad,
+			       struct ohce_io *io,
+			       struct ohce_primitive *p
+);
 
-int ohce_eval(SadDict sad, struct ohce_io *io, const char delim1[2], const char delim2[2][2])
+int ohce_eval(
+	      const struct ohce_option *options,
+	      SadDict sad,
+	      struct ohce_io *io,
+	      const char delim1[2],
+	      const char delim2[2][2]
+)
 {
 	struct ohce_primitive p = {
 		.content = Str_new(),
@@ -67,7 +79,7 @@ again:
 		ret = 1;
 		break;
 	case OHCE_PRIMITIVE_DYNAMIC:
-		if (ohce_eval_dynamics(sad, io, &p))
+		if (ohce_eval_dynamics(options, sad, io, &p))
 			goto again;
 		ret = 2;
 		break;
@@ -150,7 +162,7 @@ static bool eval_id(SELF self)
 			return true;
 		}
 	}
-	return false;
+	return self->options->ignore_false_key;
 }
 
 static bool eval_bool(SELF self, bool *res)
@@ -246,7 +258,12 @@ static bool eval_for(SELF self, bool alive)
 	return false;
 }
 
-static bool ohce_eval_dynamics(SadDict sad, struct ohce_io *io, struct ohce_primitive *p)
+static bool ohce_eval_dynamics(
+			       const struct ohce_option *options,
+			       SadDict sad,
+			       struct ohce_io *io,
+			       struct ohce_primitive *p
+)
 {
 	size_t n = Str_getLength(p->content);
 	size_t index = skip_white_spaces(p->content, 0);
@@ -255,6 +272,7 @@ static bool ohce_eval_dynamics(SadDict sad, struct ohce_io *io, struct ohce_prim
 
 	bool ret = true;
 	struct SELF self;
+	self.options = options;
 	self.p = p;
 	self.io = io;
 	self.sad = sad;
